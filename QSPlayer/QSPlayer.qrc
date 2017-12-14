@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/QSPlayer">
+        <file alias="QSPlayer_icon">data/picture/icon/QSPlayer_icon.png</file>
+        <file alias="QSPlayer_Logo">data/picture/QSPlayer_Logo.png</file>
+    </qresource>
+</RCC>
