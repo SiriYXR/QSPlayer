@@ -33,6 +33,7 @@ QSPlayer::QSPlayer(QWidget *parent)
 	mTimer->setInterval(500);
 
 	mPlayerState = Stop;
+	isFullScreen = false;
 
 	originSize = QSize(730, 400);
 	nowSize = originSize;
@@ -135,14 +136,20 @@ void QSPlayer::keyPressEvent(QKeyEvent * event)
 void QSPlayer::mousePressEvent(QMouseEvent * event)
 {
 	if (event->button() == Qt::LeftButton) {
-
+		if (mPlayerState == Playing)
+			slotPause();
+		else if (mPlayerState == Pause)
+			slotPlay();
 	}
 }
 
 void QSPlayer::mouseDoubleClickEvent(QMouseEvent * event)
 {
 	if (event->button() == Qt::LeftButton) {
-
+		if (isFullScreen)
+			slotShowNormal();
+		else
+			slotShowFullScreen();
 	}
 }
 
@@ -226,17 +233,11 @@ void QSPlayer::slotBtnClick()
 {
 	if (QObject::sender() == pushButton_play)
 	{
-		mPlayer->play();
-		mPlayerState = Playing;
-		pushButton_pause->setHidden(false);
-		pushButton_play->setHidden(true);
+		slotPlay();
 	}
 	else if (QObject::sender() == pushButton_pause)
 	{
-		mPlayer->pause();
-		mPlayerState = Pause;
-		pushButton_pause->setHidden(true);
-		pushButton_play->setHidden(false);
+		slotPause();
 	}
 	else if (QObject::sender() == pushButton_stop)
 	{
@@ -275,6 +276,7 @@ void QSPlayer::slotBtnClick()
 
 void QSPlayer::slotShowFullScreen()
 {
+	isFullScreen = true;
 	this->showFullScreen();
 	updateSize(QApplication::desktop()->geometry().size());
 	update();
@@ -282,8 +284,25 @@ void QSPlayer::slotShowFullScreen()
 
 void QSPlayer::slotShowNormal()
 {
+	isFullScreen = false;
 	this->showNormal();
 	updateSize(nowSize);
+}
+
+void QSPlayer::slotPause()
+{
+	mPlayer->pause();
+	mPlayerState = Pause;
+	pushButton_pause->setHidden(true);
+	pushButton_play->setHidden(false);
+}
+
+void QSPlayer::slotPlay()
+{
+	mPlayer->play();
+	mPlayerState = Playing;
+	pushButton_pause->setHidden(false);
+	pushButton_play->setHidden(true);
 }
 
 void QSPlayer::slotGetOneFrame(QImage img)

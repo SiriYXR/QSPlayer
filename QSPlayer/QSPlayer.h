@@ -56,6 +56,9 @@ private slots:
 
 	void slotShowNormal();
 
+	void slotPause();
+
+	void slotPlay();
 private:
 	Ui::QSPlayerClass ui;
 	videoPlayer *mPlayer;
@@ -72,4 +75,6 @@ private:
 	QPushButton *pushButton_play;
 	QPushButton *pushButton_pause;
 	QPushButton *pushButton_stop;
+
+	bool isFullScreen;
 };
