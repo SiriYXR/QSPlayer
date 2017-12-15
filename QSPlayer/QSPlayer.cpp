@@ -244,6 +244,7 @@ void QSPlayer::slotBtnClick()
 		mPlayer->stop(true);
 		mPlayerState = Stop;
 		pushButton_stop->setHidden(true);
+		pushButton_play->setHidden(true);
 		pushButton_pause->setHidden(true);
 		pushButton_open2->setHidden(true);
 		pushButton_open->setHidden(false);
