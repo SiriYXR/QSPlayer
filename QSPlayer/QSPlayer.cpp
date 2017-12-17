@@ -67,6 +67,17 @@ QSPlayer::QSPlayer(QWidget *parent)
 	pushButton_stop->setHidden(true);
 	pushButton_stop->setText("Stop");
 
+	pushButton_showfullscreen = new QPushButton(this);
+	pushButton_showfullscreen->setGeometry(screenRect.width()-100, 0, 100, 30);
+	pushButton_showfullscreen->setHidden(true);
+	pushButton_showfullscreen->setText("Full Screen");
+
+	pushButton_shownormal = new QPushButton(this);
+	pushButton_shownormal->setGeometry(screenRect.width() - 100, 0, 100, 30);
+	pushButton_shownormal->setHidden(true);
+	pushButton_shownormal->setText("Show Normal");
+	
+
 	pushButton_open->move((screenRect.x() - pushButton_open->width()) / 2, (screenRect.y() - pushButton_open->height()) / 2);
 
 	connect(pushButton_open, SIGNAL(clicked()), this, SLOT(slotBtnClick()));
@@ -74,6 +85,8 @@ QSPlayer::QSPlayer(QWidget *parent)
 	connect(pushButton_play, SIGNAL(clicked()), this, SLOT(slotBtnClick()));
 	connect(pushButton_pause, SIGNAL(clicked()), this, SLOT(slotBtnClick()));
 	connect(pushButton_stop, SIGNAL(clicked()), this, SLOT(slotBtnClick()));
+	connect(pushButton_showfullscreen, SIGNAL(clicked()), this, SLOT(slotBtnClick()));
+	connect(pushButton_shownormal, SIGNAL(clicked()), this, SLOT(slotBtnClick()));
 
 	//connect(horizontalSlider, SIGNAL(sliderMoved(int)), this, SLOT(slotSliderMoved(int)));
 }
@@ -163,6 +176,9 @@ void QSPlayer::updateSize(QSize size)
 
 	//将pushButton_open位置竖直居中
 	pushButton_open->move((screenRect.width() - pushButton_open->width()) / 2, (screenRect.height() - pushButton_open->height()) / 2 + 100);
+
+	pushButton_showfullscreen->move(screenRect.width() - pushButton_showfullscreen->width(), 0);
+	pushButton_shownormal->move(screenRect.width() - pushButton_shownormal->width(), 0);
 }
 
 void QSPlayer::slotGetVideoOriginSize(QSize size)
@@ -189,46 +205,6 @@ void QSPlayer::slotGetVideoOriginSize(QSize size)
 	this->move(x, y);
 }
 
-void QSPlayer::slotTotalTimeChanged(qint64 uSec)
-{
-	//qint64 Sec = uSec / 1000000;
-
-	//ui->horizontalSlider->setRange(0, Sec);
-
-	////QString hStr = QString("00%1").arg(Sec/3600);
-	//QString mStr = QString("00%1").arg(Sec / 60);
-	//QString sStr = QString("00%1").arg(Sec % 60);
-
-	//QString str = QString("%1:%2").arg(mStr.right(2)).arg(sStr.right(2));
-	//u->label_totaltime->setText(str);
-}
-
-void QSPlayer::slotSliderMoved(int value)
-{
-	/*if (QObject::sender() == ui->horizontalSlider)
-	{
-		mPlayer->seek((qint64)value * 1000000);
-	}*/
-}
-
-void QSPlayer::slotTimerTimeOut()
-{
-	//if (QObject::sender() == mTimer)
-	//{
-
-	//	qint64 Sec = mPlayer->getCurrentTime();
-
-	//	ui->horizontalSlider->setValue(Sec);
-
-	//	//    QString hStr = QString("00%1").arg(Sec/3600);
-	//	QString mStr = QString("00%1").arg(Sec / 60);
-	//	QString sStr = QString("00%1").arg(Sec % 60);
-
-	//	QString str = QString("%1:%2").arg(mStr.right(2)).arg(sStr.right(2));
-	//	ui->label_currenttime->setText(str);
-	//}
-}
-
 void QSPlayer::slotBtnClick()
 {
 	if (QObject::sender() == pushButton_play)
@@ -243,11 +219,21 @@ void QSPlayer::slotBtnClick()
 	{
 		mPlayer->stop(true);
 		mPlayerState = Stop;
+		slotShowNormal();
 		pushButton_stop->setHidden(true);
 		pushButton_play->setHidden(true);
 		pushButton_pause->setHidden(true);
 		pushButton_open2->setHidden(true);
 		pushButton_open->setHidden(false);
+		pushButton_showfullscreen->setHidden(false);
+	}
+	else if (QObject::sender() == pushButton_showfullscreen)
+	{
+		slotShowFullScreen();
+	}
+	else if (QObject::sender() == pushButton_shownormal)
+	{
+		slotShowNormal();
 	}
 	else if (QObject::sender() == pushButton_open|| QObject::sender() == pushButton_open2)
 	{
@@ -271,21 +257,28 @@ void QSPlayer::slotBtnClick()
 			pushButton_pause->setHidden(false);
 			pushButton_open->setHidden(true);
 			pushButton_open2->setHidden(false);
+			pushButton_showfullscreen->setHidden(false);
 		}
 	}
 }
 
 void QSPlayer::slotShowFullScreen()
 {
-	isFullScreen = true;
-	this->showFullScreen();
-	updateSize(QApplication::desktop()->geometry().size());
-	update();
+	if (mPlayerState != Stop) {
+		isFullScreen = true;
+		pushButton_showfullscreen->setHidden(true);
+		pushButton_shownormal->setHidden(false);
+		this->showFullScreen();
+		updateSize(QApplication::desktop()->geometry().size());
+		update();
+	}
 }
 
 void QSPlayer::slotShowNormal()
 {
 	isFullScreen = false;
+	pushButton_showfullscreen->setHidden(false);
+	pushButton_shownormal->setHidden(true);
 	this->showNormal();
 	updateSize(nowSize);
 }
@@ -310,4 +303,44 @@ void QSPlayer::slotGetOneFrame(QImage img)
 {
 	mImage = img;
 	update(); //调用update将执行 paintEvent函数
+}
+
+void QSPlayer::slotTotalTimeChanged(qint64 uSec)
+{
+	//qint64 Sec = uSec / 1000000;
+
+	//ui->horizontalSlider->setRange(0, Sec);
+
+	////QString hStr = QString("00%1").arg(Sec/3600);
+	//QString mStr = QString("00%1").arg(Sec / 60);
+	//QString sStr = QString("00%1").arg(Sec % 60);
+
+	//QString str = QString("%1:%2").arg(mStr.right(2)).arg(sStr.right(2));
+	//u->label_totaltime->setText(str);
+}
+
+void QSPlayer::slotSliderMoved(int value)
+{
+	/*if (QObject::sender() == ui->horizontalSlider)
+	{
+	mPlayer->seek((qint64)value * 1000000);
+	}*/
+}
+
+void QSPlayer::slotTimerTimeOut()
+{
+	//if (QObject::sender() == mTimer)
+	//{
+
+	//	qint64 Sec = mPlayer->getCurrentTime();
+
+	//	ui->horizontalSlider->setValue(Sec);
+
+	//	//    QString hStr = QString("00%1").arg(Sec/3600);
+	//	QString mStr = QString("00%1").arg(Sec / 60);
+	//	QString sStr = QString("00%1").arg(Sec % 60);
+
+	//	QString str = QString("%1:%2").arg(mStr.right(2)).arg(sStr.right(2));
+	//	ui->label_currenttime->setText(str);
+	//}
 }

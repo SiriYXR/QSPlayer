@@ -75,6 +75,11 @@ private:
 	QPushButton *pushButton_play;
 	QPushButton *pushButton_pause;
 	QPushButton *pushButton_stop;
+	QPushButton *pushButton_showfullscreen;
+	QPushButton *pushButton_shownormal;
+	QPushButton *pushButton_showoriginsize;
+
+
 
 	bool isFullScreen;
 };

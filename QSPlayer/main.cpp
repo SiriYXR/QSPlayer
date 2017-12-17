@@ -16,7 +16,7 @@
 #include <QtWidgets/QApplication>
 #include <QTextCodec>
 
-#undef main
+#undef main//Release时要将这行代码注释
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
